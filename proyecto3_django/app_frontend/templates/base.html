@@ -1,7 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Proyecto 3{% endblock %}</title>
-    
-</head>
+<html>
+    <head>
+        
+        <title>{% block title %}Proyecto 3{% endblock %}</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'css/style.css' %}?v={{ timestamp }}">
+
+    </head>
+    <body>
+        <nav>
+            <a href="{% url 'home' %}">Inicio</a>
+            <a href="{% url 'index' %}">Indice</a>
+            <a href="{% url 'ayuda' %}">Ayuda</a>
+        </nav>
+
+        {% block content %}
+        
+        {% endblock %}
+    </body>
+</html>
