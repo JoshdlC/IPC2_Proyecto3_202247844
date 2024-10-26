@@ -1,21 +1,19 @@
 {% extends "base.html" %}
-{% block title %} Página de inicio {% endblock %}
+{% block title %} Cargar archivo {% endblock %}
 {% block content %}
 <div>
-    <h1>Proyecto 3</h1>
-</div>    
-<body>
+    <h1>Cargar archivo</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="xml_file" accept=".xml">
+        <button type="submit">Cargar</button>
+    </form>
     <div>
-        <div class="botton-ini">
-            <button class="EnviarB">Enviar</button>
-            <button class="ResetB">Reset</button>
-        </div>
         <div class="columns-container">
-            
             <div class="column">
                 <h2>Entrada</h2>
                 {% if xml_dataEntrada %}
-                <pre>{{ xml_dataEntrada }}</pre>
+                <pre><code>{{ xml_dataEntrada }}</code></pre>
                 {% endif %}
             </div>
             <div class="column">
@@ -26,8 +24,5 @@
             </div>
         </div>
     </div>
-    
-</body>
-
-
+</div>
 {% endblock %}
