@@ -13,3 +13,8 @@ luego nos vamos a la carpeta proyecto3_django para correr el servidor
 ```
 cd .\proyecto3_django\
 ```
+
+Luego ponemos a correr el servidor
+```
+python manage.py runserver
+```
