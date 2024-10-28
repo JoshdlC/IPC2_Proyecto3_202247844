@@ -4,6 +4,8 @@ import os
 from werkzeug.utils import secure_filename
 import re
 import uuid
+from xml.dom import minidom
+
 
 from empresa import Empresa, Servicio
 from diccionarioSent import DiccionarioSent
@@ -176,7 +178,7 @@ def procesarArchivo(filePath):
         else:
             print("Usuario no encontrado")
 
-        regexRed = re.compile(r'Red social:\s*([\w\s]+)')
+        regexRed = re.compile(r'Red social:\s{1,2}([A-Za-z]+)')
         redSocial = regexRed.search(mensaje)
         if redSocial:
             print("Red social: ", redSocial.group())
@@ -241,72 +243,80 @@ def procesarArchivo(filePath):
                 
 def generarSalida():
     salidaXml = ET.Element("lista_respuestas")
-    respuesta = ET.SubElement(salidaXml, "respuesta")
+    mensajes_por_fecha = {}
+    for mensaje in mensajesGlobal:
+        if mensaje.fecha not in mensajes_por_fecha:
+            mensajes_por_fecha[mensaje.fecha] = []
+        mensajes_por_fecha[mensaje.fecha].append(mensaje)
     
-    # Agregar la fecha
-    fecha = ET.SubElement(respuesta, "fecha")
-    fecha.text = "01/04/2022"  # Puedes cambiar esto a la fecha actual o la fecha que necesites
-    
-    # Agregar los mensajes totales
-    mensajes = ET.SubElement(respuesta, "mensajes")
-    total = ET.SubElement(mensajes, "total")
-    total.text = str(len(mensajesGlobal))
-    
-    positivos = ET.SubElement(mensajes, "positivos")
-    positivos.text = str(len(mensajesPositivos))
-    
-    negativos = ET.SubElement(mensajes, "negativos")
-    negativos.text = str(len(mensajesNegativos))
-    
-    neutros = ET.SubElement(mensajes, "neutros")
-    neutros.text = str(len(mensajesNeutros))
-    
-    # Agregar el análisis por empresa y servicio
-    analisis = ET.SubElement(respuesta, "analisis")
-    
-    for empresa in empresasGlobal:
-        empresa_element = ET.SubElement(analisis, "empresa", nombre=empresa.nombre)
+    for fecha, mensajes in mensajes_por_fecha.items():
+        respuesta = ET.SubElement(salidaXml, "respuesta")
         
-        empresa_mensajes = ET.SubElement(empresa_element, "mensajes")
-        empresa_total = ET.SubElement(empresa_mensajes, "total")
-        empresa_total.text = str(len(empresa.mensajes))
+        # Agregar la fecha
+        fecha_element = ET.SubElement(respuesta, "fecha")
+        fecha_element.text = fecha
         
-        empresa_positivos = ET.SubElement(empresa_mensajes, "positivos")
-        empresa_positivos.text = str(len([m for m in empresa.mensajes if m.sentimiento == "positivo"]))
+        # Agregar los mensajes totales
+        mensajes_element = ET.SubElement(respuesta, "mensajes")
+        total = ET.SubElement(mensajes_element, "total")
+        total.text = str(len(mensajes))
         
-        empresa_negativos = ET.SubElement(empresa_mensajes, "negativos")
-        empresa_negativos.text = str(len([m for m in empresa.mensajes if m.sentimiento == "negativo"]))
+        positivos = ET.SubElement(mensajes_element, "positivos")
+        positivos.text = str(len([m for m in mensajes if m in mensajesPositivos]))
         
-        empresa_neutros = ET.SubElement(empresa_mensajes, "neutros")
-        empresa_neutros.text = str(len([m for m in empresa.mensajes if m.sentimiento == "neutro"]))
+        negativos = ET.SubElement(mensajes_element, "negativos")
+        negativos.text = str(len([m for m in mensajes if m in mensajesNegativos]))
         
-        servicios_element = ET.SubElement(empresa_element, "servicios")
+        neutros = ET.SubElement(mensajes_element, "neutros")
+        neutros.text = str(len([m for m in mensajes if m in mensajesNeutros]))
         
-        for servicio in empresa.servicios:
-            servicio_element = ET.SubElement(servicios_element, "servicio", nombre=servicio.nombre)
+        # Agregar el análisis por empresa y servicio
+        analisis = ET.SubElement(respuesta, "analisis")
+        
+        for empresa in empresasGlobal:
+            empresa_element = ET.SubElement(analisis, "empresa", nombre=empresa.nombre)
             
-            servicio_mensajes = ET.SubElement(servicio_element, "mensajes")
-            servicio_total = ET.SubElement(servicio_mensajes, "total")
-            servicio_total.text = str(len(servicio.mensajes))
+            empresa_mensajes = ET.SubElement(empresa_element, "mensajes")
+            empresa_total = ET.SubElement(empresa_mensajes, "total")
+            empresa_total.text = str(len([m for m in mensajes if m in empresa.mensajes]))
             
-            servicio_positivos = ET.SubElement(servicio_mensajes, "positivos")
-            servicio_positivos.text = str(len([m for m in servicio.mensajes if m.sentimiento == "positivo"]))
+            empresa_positivos = ET.SubElement(empresa_mensajes, "positivos")
+            empresa_positivos.text = str(len([m for m in mensajes if m in empresa.mensajes and m in mensajesPositivos]))
             
-            servicio_negativos = ET.SubElement(servicio_mensajes, "negativos")
-            servicio_negativos.text = str(len([m for m in servicio.mensajes if m.sentimiento == "negativo"]))
+            empresa_negativos = ET.SubElement(empresa_mensajes, "negativos")
+            empresa_negativos.text = str(len([m for m in mensajes if m in empresa.mensajes and m in mensajesNegativos]))
             
-            servicio_neutros = ET.SubElement(servicio_mensajes, "neutros")
-            servicio_neutros.text = str(len([m for m in servicio.mensajes if m.sentimiento == "neutro"]))
+            empresa_neutros = ET.SubElement(empresa_mensajes, "neutros")
+            empresa_neutros.text = str(len([m for m in mensajes if m in empresa.mensajes and m in mensajesNeutros]))
+            
+            servicios_element = ET.SubElement(empresa_element, "servicios")
+            
+            for servicio in empresa.servicios:
+                servicio_element = ET.SubElement(servicios_element, "servicio", nombre=servicio.nombre)
+                
+                servicio_mensajes = ET.SubElement(servicio_element, "mensajes")
+                servicio_total = ET.SubElement(servicio_mensajes, "total")
+                servicio_total.text = str(len([m for m in mensajes if m in servicio.mensajes]))
+                
+                servicio_positivos = ET.SubElement(servicio_mensajes, "positivos")
+                servicio_positivos.text = str(len([m for m in mensajes if m in servicio.mensajes and m in mensajesPositivos]))
+                
+                servicio_negativos = ET.SubElement(servicio_mensajes, "negativos")
+                servicio_negativos.text = str(len([m for m in mensajes if m in servicio.mensajes and m in mensajesNegativos]))
+                
+                servicio_neutros = ET.SubElement(servicio_mensajes, "neutros")
+                servicio_neutros.text = str(len([m for m in mensajes if m in servicio.mensajes and m in mensajesNeutros]))
     
-    tree = ET.ElementTree(salidaXml)
+    # Convertir el árbol XML a una cadena con indentación
+    rough_string = ET.tostring(salidaXml, 'utf-8')
+    reparsed = minidom.parseString(rough_string)
+    pretty_xml_as_string = reparsed.toprettyxml(indent="  ")
+    
     output_path = "C:\\Users\\josue\\Documents\\IPC2\\IPC2_Proyecto3_202247844\\backend\\salida.xml"
-    tree.write(output_path, encoding='utf-8', xml_declaration=True)
+    with open(output_path, 'w', encoding='utf-8') as file:
+        file.write(pretty_xml_as_string)
     
-    with open(output_path, 'r', encoding='utf-8') as file:
-        xml_content = file.read()
-    
-    return xml_content
-    
+    return pretty_xml_as_string
     # salidaXml = ET.Element("lista_respuestas")
     # respuesta = ET.SubElement(salidaXml, "respuesta")
     
