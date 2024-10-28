@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, make_response
 import xml.etree.ElementTree as ET
 import os
 from werkzeug.utils import secure_filename
 import re
+import uuid
 
 from empresa import Empresa, Servicio
 from diccionarioSent import DiccionarioSent
@@ -26,6 +27,10 @@ baseDeDatosFalsa = {
 if not os.path.exists('uploads'):
     os.makedirs('uploads') 
     
+#?  para filePaths
+filePaths = []
+
+#* Listas globales
 empresasGlobal = []
 serviciosGlobal = []
 diccionario = []
@@ -234,7 +239,84 @@ def procesarArchivo(filePath):
         # #* Agrega el mensaje al servicio
         # servicio.mensajes.append(mensaje)                
                 
-
+def generarSalida():
+    salidaXml = ET.Element("lista_respuestas")
+    respuesta = ET.SubElement(salidaXml, "respuesta")
+    
+    # Agregar la fecha
+    fecha = ET.SubElement(respuesta, "fecha")
+    fecha.text = "01/04/2022"  # Puedes cambiar esto a la fecha actual o la fecha que necesites
+    
+    # Agregar los mensajes totales
+    mensajes = ET.SubElement(respuesta, "mensajes")
+    total = ET.SubElement(mensajes, "total")
+    total.text = str(len(mensajesGlobal))
+    
+    positivos = ET.SubElement(mensajes, "positivos")
+    positivos.text = str(len(mensajesPositivos))
+    
+    negativos = ET.SubElement(mensajes, "negativos")
+    negativos.text = str(len(mensajesNegativos))
+    
+    neutros = ET.SubElement(mensajes, "neutros")
+    neutros.text = str(len(mensajesNeutros))
+    
+    # Agregar el análisis por empresa y servicio
+    analisis = ET.SubElement(respuesta, "analisis")
+    
+    for empresa in empresasGlobal:
+        empresa_element = ET.SubElement(analisis, "empresa", nombre=empresa.nombre)
+        
+        empresa_mensajes = ET.SubElement(empresa_element, "mensajes")
+        empresa_total = ET.SubElement(empresa_mensajes, "total")
+        empresa_total.text = str(len(empresa.mensajes))
+        
+        empresa_positivos = ET.SubElement(empresa_mensajes, "positivos")
+        empresa_positivos.text = str(len([m for m in empresa.mensajes if m.sentimiento == "positivo"]))
+        
+        empresa_negativos = ET.SubElement(empresa_mensajes, "negativos")
+        empresa_negativos.text = str(len([m for m in empresa.mensajes if m.sentimiento == "negativo"]))
+        
+        empresa_neutros = ET.SubElement(empresa_mensajes, "neutros")
+        empresa_neutros.text = str(len([m for m in empresa.mensajes if m.sentimiento == "neutro"]))
+        
+        servicios_element = ET.SubElement(empresa_element, "servicios")
+        
+        for servicio in empresa.servicios:
+            servicio_element = ET.SubElement(servicios_element, "servicio", nombre=servicio.nombre)
+            
+            servicio_mensajes = ET.SubElement(servicio_element, "mensajes")
+            servicio_total = ET.SubElement(servicio_mensajes, "total")
+            servicio_total.text = str(len(servicio.mensajes))
+            
+            servicio_positivos = ET.SubElement(servicio_mensajes, "positivos")
+            servicio_positivos.text = str(len([m for m in servicio.mensajes if m.sentimiento == "positivo"]))
+            
+            servicio_negativos = ET.SubElement(servicio_mensajes, "negativos")
+            servicio_negativos.text = str(len([m for m in servicio.mensajes if m.sentimiento == "negativo"]))
+            
+            servicio_neutros = ET.SubElement(servicio_mensajes, "neutros")
+            servicio_neutros.text = str(len([m for m in servicio.mensajes if m.sentimiento == "neutro"]))
+    
+    tree = ET.ElementTree(salidaXml)
+    output_path = "C:\\Users\\josue\\Documents\\IPC2\\IPC2_Proyecto3_202247844\\backend\\salida.xml"
+    tree.write(output_path, encoding='utf-8', xml_declaration=True)
+    
+    with open(output_path, 'r', encoding='utf-8') as file:
+        xml_content = file.read()
+    
+    return xml_content
+    
+    # salidaXml = ET.Element("lista_respuestas")
+    # respuesta = ET.SubElement(salidaXml, "respuesta")
+    
+    # for fechaEncontrada in Mensaje.fechas:
+    #     fecha = ET.SubElement(respuesta, "fecha")
+    #     fecha.text = fechaEncontrada
+        
+        
+    # tree = ET.ElementTree(salidaXml)
+    # tree.write("C:\\Users\\josue\\Documents\\IPC2\\IPC3_Proyecto3\\backend\\salida.xml")
 
     
 
@@ -252,27 +334,42 @@ def cargar_xml():
     #! NO TOCAR ESTO AAAAAAAAAAAA
 
     if 'archivo_xml' not in request.files:
-        return jsonify({'error': 'No se envió ningún archivo XML'}), 400
+        return jsonify({'error': 'No se envió ningun archivo XML'}), 400
 
     archivo_xml = request.files['archivo_xml']
     fileName = secure_filename(archivo_xml.filename)
     filePath = os.path.join('uploads', fileName)
     archivo_xml.save(filePath)
     
-    session['filePath'] = filePath
-
+    #* genera un id para el filePath
+    fileIndex = len(filePaths)
+    filePaths.append(filePath)
+    print(f"filePath en cargar_xml con indice: {fileIndex} y  filePath{filePath}")
+    
     tree = ET.parse(filePath)
     root = tree.getroot()
     xml_content = ET.tostring(root, encoding='unicode')
 
+    response = jsonify({'xml_content': xml_content, 'fileIndex': fileIndex})
     
-    return jsonify({'xml_content': xml_content})
+    return response
 
-@app.route('/procesar_xml', methods=['POST'])
+@app.route('/procesar_xml', methods=['POST', 'GET'])
 def procesar_xml():
-    filePath = session.get('filePath')
+    
+    print("Procesar XML|||||||||||||")
+    data = request.get_json()
+    
+    fileIndex = data.get('fileIndex')
+    
+    if fileIndex is None or fileIndex >= len(filePaths):
+        return jsonify({'error': 'Indice invalido'}), 400
+    
+    filePath = filePaths[fileIndex]
+    print(f"filePath en procesar_xml: {filePath}")
+    
     if not filePath:
-        return jsonify({'error': 'No se ha cargado ningún archivo XML'}), 400
+        return jsonify({'error': 'No se ha cargado ningun archivo XML XD'}), 400
     
     #* Procesar el archivo
     try:
@@ -283,17 +380,19 @@ def procesar_xml():
         tree = ET.parse(filePath)
         root = tree.getroot()
         xml_content = ET.tostring(root, encoding='unicode')
+        
+        salida_xml_content = generarSalida()
     
         return jsonify({
             'xml_content': xml_content,
-            'sentimientos_positivos': len(sentimientosPositivo),
-            'sentimientos_negativos': len(sentimientosNegativo),
+            'sentimientos_positivos': sentimientosPositivo,
+            'sentimientos_negativos': sentimientosNegativo,
+            'salida_xml_content': salida_xml_content
         })
     
     except Exception as e:
         print(f"Error al procesar el archivo XML: {e}")
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)

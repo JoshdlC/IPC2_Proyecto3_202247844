@@ -24,42 +24,18 @@
             <div class="column">
                 <h2>Entrada</h2>
                 {% if xml_dataEntrada %}
-                <pre>{{ xml_dataEntrada }}</pre>
+                <pre><code>{{ xml_dataEntrada }}</code></pre>
                 {% endif %}
             </div>
             <div class="column">
                 <h2>Salida</h2>
                 {% if xml_dataSalida %}
-                <pre>{{ xml_dataSalida }}</pre>
+                <pre><code>{{ xml_dataSalida }}</code></pre>
                 {% endif %}
             </div>
         </div>
         <div>
-            <div class="palabrasPos">
-                <h2>Palabras positivas</h2>
-                {% if sentimientos_positivos %}
-                    <ul>
-                        {% for sentimiento in sentimientos_positivos %}
-                            <li>{{ sentimiento }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No hay palabras positivas</p>
-                {% endif %}
-            </div>
-            <br>
-            <div class="palabrasNeg">
-                <h2>Palabras negativas</h2>
-                {% if sentimientos_negativos %}
-                    <ul>
-                        {% for sentimiento in sentimientos_negativos %}
-                            <li>{{ sentimiento }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No hay palabras negativas</p>
-                {% endif %}
-            </div>
+            
             <br>
         </div>
     </div>
