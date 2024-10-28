@@ -7,8 +7,15 @@
 <body>
     <div>
         <div class="botton-ini">
-            <button class="EnviarB">Enviar</button>
-            <button class="ResetB">Reset</button>
+            <form method="post">
+                <button class="EnviarB">Enviar</button>
+            </form>
+            
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="reset" value="true">
+                <button class="ResetB btn-danger">Reset</button>
+            </form>
         </div>
         <div class="columns-container">
             

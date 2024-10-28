@@ -1,9 +1,9 @@
 from mensaje import Mensaje
 
 class Empresa:
-    def __init__(self, nombre, servicios):
+    def __init__(self, nombre):
         self.nombre = nombre
-        self.servicios = servicios
+        self.servicios = Servicio()
         self.mensajes = Mensaje()
 
     def agregar_servicio(self, servicio):
