@@ -8,6 +8,8 @@
     <div>
         <div class="botton-ini">
             <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="enviar" value="true">
                 <button class="EnviarB">Enviar</button>
             </form>
             
@@ -43,6 +45,10 @@
                 <p>Hacer logica para que salgan las palabras negativas</p>
             </div>
             <br>
+            <div class="palabrasX">
+                <h2>Palabras neutras</h2>
+                <p>Hacer logica para que salgan las palabras neutras</p>
+            </div>
         </div>
     </div>
     

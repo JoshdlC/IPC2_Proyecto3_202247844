@@ -13,14 +13,12 @@ import requests
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
-
 xml_dataEntrada = None
 xml_dataSalida = None
 
 baseDeDatosFalsa = {
     "data": []
 }
-
            
 #* si no existe la carpeta de subidas        
 if not os.path.exists('uploads'):
@@ -33,12 +31,6 @@ sentimientosPositivo = []
 sentimientosNegativo = []
 sentimientoX = []
 mensajesGlobal = []
-mensajesPositivos = []
-mensajesNegativos = []
-mensajesNeutros = []
-totalPositivos = 0
-totalNeg = 0
-TotalX = 0
 
 def quitarTildes(palabra):
     reemplazos = (
@@ -58,7 +50,8 @@ def quitarTildes(palabra):
         palabra = palabra.replace(a, b)
                    
     return palabra
-           
+
+
 # def cargarArchivo():
 #     files = request.files.getlist('files')
     
@@ -77,12 +70,6 @@ def procesarArchivo(filePath):
     global sentimientosPositivo
     global sentimientoX
     global mensajesGlobal
-    global mensajesPositivos
-    global mensajesNegativos
-    global mensajesNeutros
-    global totalPositivos
-    global totalNeg
-    global TotalX
     
     
     tree = ET.parse(filePath)
@@ -133,7 +120,7 @@ def procesarArchivo(filePath):
             for servicios in empresas.find("servicios"):
                 for servicio in servicios.findall("servicio"):
                     nombreServicio = servicio.get("nombre").text.strip()
-                    aliasServicio = servicio.find("alias").text.strip()
+                    aliasServicio = servicio.findall("alias").text.strip()
                     
                     #* revisa si ya existe el servicio
                     servicioExistente = None
@@ -159,56 +146,19 @@ def procesarArchivo(filePath):
         regexFecha = re.compile(r'\b(0[1-9]|[12]\d|3[01])[-/](0[1-9]|1[0-2])[-/](19\d\d|20\d\d)\b')
         fecha = regexFecha.search(mensaje)
         #! Hay q validar la fecha
-        if fecha:
-            print("Fecha: ", fecha.group())
-        else:
-            print("Fecha no encontrada")
+        print("Fecha: ", fecha)
         
         regexUser = re.compile(r'Usuario:\s*([a-zA-Z0-9]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})')       
         usuario = regexUser.search(mensaje)
-        if usuario:
-            print("Usuario: ", usuario.group())
-        else:
-            print("Usuario no encontrado")
-
+        print("Usuario: ", usuario)
+         
         regexRed = re.compile(r'Red social:\s*([\w\s]+)')
         redSocial = regexRed.search(mensaje)
-        if redSocial:
-            print("Red social: ", redSocial.group())
-        else:
-            print("Red social no encontrada")
-            
-            
+        print("Red social: ", redSocial)
+        
         contenido = mensaje
         
-        mensajeCompleto = Mensaje(fecha.group() if fecha else "Fecha no encontrada",
-                                  usuario.group() if usuario else "Usuario no encontrado",
-                                  redSocial.group() if redSocial else "Red social no encontrada",
-                                  contenido)
-        
-        #* Clasificar los mensajes
-        mensajeClasi = False
-        contenidoLowerSinTildes = quitarTildes(contenido.lower())
-        
-        for palabra in sentimientosPositivo:
-            if palabra in contenidoLowerSinTildes:
-                mensajesPositivos.append(mensajeCompleto)
-                totalPositivos += 1
-                mensajeClasi = True
-                break
-            
-        if not mensajeClasi:
-            for palabra in sentimientosNegativo:
-                if palabra in contenidoLowerSinTildes:
-                    mensajesNegativos.append(mensajeCompleto)
-                    totalNeg += 1
-                    mensajeClasi = True
-                    break
-                
-        if not mensajeClasi:
-            mensajesNeutros.append(mensajeCompleto)
-            TotalX += 1
-            
+        mensajeCompleto = Mensaje(fecha, usuario, redSocial, contenido)
         mensajesGlobal.append(mensajeCompleto)
         
         # texto = mensaje.find("texto").text.strip()
@@ -244,8 +194,8 @@ def home():
 
 @app.route('/cargar_xml', methods=['POST'])
 def cargar_xml():
+
     
-    #! NO TOCAR ESTO AAAAAAAAAAAA
     if 'archivo_xml' not in request.files:
         return jsonify({'error': 'No se envió ningún archivo XML'}), 400
 
@@ -254,14 +204,9 @@ def cargar_xml():
     filePath = os.path.join('uploads', fileName)
     archivo_xml.save(filePath)
     
-    session['filePath'] = filePath
+ 
 
-    tree = ET.parse(filePath)
-    root = tree.getroot()
-    xml_content = ET.tostring(root, encoding='unicode')
-
-    
-    return jsonify({'xml_content': xml_content})
+    return jsonify({'message': 'Archivo xml cargado correctamente'})
 
 @app.route('/procesar_xml', methods=['POST'])
 def procesar_xml():
@@ -270,20 +215,12 @@ def procesar_xml():
         return jsonify({'error': 'No se ha cargado ningún archivo XML'}), 400
     
     #* Procesar el archivo
-    try:
-        print("Antes--------------")
-        procesarArchivo(filePath)
-        print("Después--------------")
-        
-        tree = ET.parse(filePath)
-        root = tree.getroot()
-        xml_content = ET.tostring(root, encoding='unicode')
+    procesarArchivo(filePath)
+    tree = ET.parse(filePath)
+    root = tree.getroot()
+    xml_content = ET.tostring(root, encoding='unicode')
     
-        return jsonify({'xml_content': xml_content})
-    
-    except Exception as e:
-        print(f"Error al procesar el archivo XML: {e}")
-        return jsonify({'error': str(e)}), 500
+    return jsonify({'xml_content': xml_content})
 
 
 if __name__ == '__main__':
