@@ -60,17 +60,22 @@ def home(request):
     if request.method == 'POST' and 'enviar' in request.POST:
         response = requests.post('http://127.0.0.1:5000/procesar_xml')
         if response.status_code == 200:
-            request.session['xml_dataSalida'] = response.json().get('xml_content')
+            data = response.json()
+            request.session['xml_dataSalida'] = data.get('xml_content')
+            request.session['sentimientos_positivos'] = data.get('sentimientos_positivos')
+            request.session['sentimientos_negativos'] = data.get('sentimientos_negativos')
+
             print("Archivo XML procesado correctamente")
             return redirect('home')
         else:
-            print("Error al procesar el archivo XML en el backend Flask esto es de carga F  ")
+            print("Error al procesar el archivo XML en el backend Flask")
     
-        
-        
     context = {
         'timestamp': now().timestamp(),
-        'xml_dataEntrada': request.session.get('xml_dataEntrada'), 
+        'xml_dataEntrada': request.session.get('xml_dataEntrada'),
         'xml_dataSalida': request.session.get('xml_dataSalida'),
+        'sentimientos_positivos': request.session.get('sentimientos_positivos'),
+        'sentimientos_negativos': request.session.get('sentimientos_negativos'),
+
     }
     return render(request, "home.html", context)

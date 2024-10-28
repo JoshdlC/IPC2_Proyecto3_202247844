@@ -37,18 +37,30 @@
         <div>
             <div class="palabrasPos">
                 <h2>Palabras positivas</h2>
-                <p>Hacer logica para que salgan las palabras positivas</p>
+                {% if sentimientos_positivos %}
+                    <ul>
+                        {% for sentimiento in sentimientos_positivos %}
+                            <li>{{ sentimiento }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No hay palabras positivas</p>
+                {% endif %}
             </div>
             <br>
             <div class="palabrasNeg">
                 <h2>Palabras negativas</h2>
-                <p>Hacer logica para que salgan las palabras negativas</p>
+                {% if sentimientos_negativos %}
+                    <ul>
+                        {% for sentimiento in sentimientos_negativos %}
+                            <li>{{ sentimiento }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No hay palabras negativas</p>
+                {% endif %}
             </div>
             <br>
-            <div class="palabrasX">
-                <h2>Palabras neutras</h2>
-                <p>Hacer logica para que salgan las palabras neutras</p>
-            </div>
         </div>
     </div>
     

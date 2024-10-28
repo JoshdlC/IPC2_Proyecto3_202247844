@@ -246,6 +246,11 @@ def home():
 def cargar_xml():
     
     #! NO TOCAR ESTO AAAAAAAAAAAA
+    #! NO TOCAR ESTO AAAAAAAAAAAA
+    #! NO TOCAR ESTO AAAAAAAAAAAA
+    #! NO TOCAR ESTO AAAAAAAAAAAA
+    #! NO TOCAR ESTO AAAAAAAAAAAA
+
     if 'archivo_xml' not in request.files:
         return jsonify({'error': 'No se envió ningún archivo XML'}), 400
 
@@ -279,7 +284,11 @@ def procesar_xml():
         root = tree.getroot()
         xml_content = ET.tostring(root, encoding='unicode')
     
-        return jsonify({'xml_content': xml_content})
+        return jsonify({
+            'xml_content': xml_content,
+            'sentimientos_positivos': len(sentimientosPositivo),
+            'sentimientos_negativos': len(sentimientosNegativo),
+        })
     
     except Exception as e:
         print(f"Error al procesar el archivo XML: {e}")
@@ -288,3 +297,5 @@ def procesar_xml():
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
+    
