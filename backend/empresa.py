@@ -1,12 +1,12 @@
 from mensaje import Mensaje
 
 class Empresa:
-    def __init__(self, nombre, servicios):
+    def __init__(self, nombre):
         self.nombre = nombre
-        self.servicios = servicios
-        self.mensajes = Mensaje()
+        self.servicios = Servicio()
+        self.mensajes = []
 
-    def agregar_servicio(self, servicio):
+    def agregarServicio(self, servicio):
         self.servicios.append(servicio)
 
     def __str__(self):
@@ -16,5 +16,5 @@ class Servicio:
     def __init__(self, nombre, alias):
         self.nombre = nombre
         self.alias = alias
-        self.mensajes = Mensaje()
+        self.mensajes = []
 
