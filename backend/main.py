@@ -1,11 +1,18 @@
-from flask import Flask, request, jsonify, session, make_response
+from flask import Flask, request, jsonify, session, make_response, send_file
 import xml.etree.ElementTree as ET
 import os
 from werkzeug.utils import secure_filename
 import re
 import uuid
 from xml.dom import minidom
-
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from io import BytesIO
 
 from empresa import Empresa, Servicio
 from diccionarioSent import DiccionarioSent
@@ -47,6 +54,10 @@ totalPositivos = 0
 totalNeg = 0
 TotalX = 0
 
+#? Fonts para el pdf
+pdfmetrics.registerFont(TTFont('Arial-Bold', 'C:\\Users\\josue\\Documents\\IPC2\\IPC2_Proyecto3_202247844\\proyecto3_django\\app_frontend\\static\\fonts\\FontsFree-Net-arial-bold.ttf'))
+pdfmetrics.registerFont(TTFont('Arial', 'C:\\Users\\josue\\Documents\\IPC2\\IPC2_Proyecto3_202247844\\proyecto3_django\\app_frontend\\static\\fonts\\arial.ttf'))
+ 
 def quitarTildes(palabra):
     reemplazos = (
         ("á", "a"),
@@ -430,6 +441,103 @@ def reset():
     session.clear()
 
     return jsonify({'message': 'Se ha reiniciado la información'})
+
+@app.route('/generar_pdf', methods=['GET'])
+def generar_pdf():
+    #* path del archivo de salida
+    xml_path = "C:\\Users\\josue\\Documents\\IPC2\\IPC2_Proyecto3_202247844\\backend\\salida.xml"
+    
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
+    
+    #* Crear el PDF
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    
+    #* Estilizar el PDF
+    estilos = getSampleStyleSheet()
+    titulo = estilos['Title']
+    estiloNormal = estilos['Normal']
+    
+    p.setFont("Arial-Bold", 20)
+    p.setFillColor(colors.darkblue)
+    p.drawString(50, height - 50, "Reporte de Análisis de Mensajes")
+
+    
+    y = height - 50
+    p.setFont("Arial", 14)
+    p.setFillColor(colors.black)
+    y -= 20
+    #* Recorrer las respuestas del xml de salida
+    for respuesta in root.findall('respuesta'):
+        fecha = respuesta.find('fecha').text
+        p.drawString(30, y, f"Fecha: {fecha}")
+        y -= 20
+        
+        mensajes = respuesta.find('mensajes')
+        total = mensajes.find('total').text
+        positivos = mensajes.find('positivos').text
+        negativos = mensajes.find('negativos').text
+        neutros = mensajes.find('neutros').text
+
+        p.drawString(30, y, f"Total de mensajes: {total}")
+        y -= 20
+        p.drawString(30, y, f"Mensajes positivos: {positivos}")
+        y -= 20
+        p.drawString(30, y, f"Mensajes negativos: {negativos}")
+        y -= 20
+        p.drawString(30, y, f"Mensajes neutros: {neutros}")
+        y -= 40
+
+        analisis = respuesta.find('analisis')
+        for empresa in analisis.findall('empresa'):
+        
+            nombre_empresa = empresa.get('nombre')
+            p.drawString(30, y, f"Empresa: {nombre_empresa}")
+            y -= 20
+
+            empresa_mensajes = empresa.find('mensajes')
+            empresa_total = empresa_mensajes.find('total').text
+            empresa_positivos = empresa_mensajes.find('positivos').text
+            empresa_negativos = empresa_mensajes.find('negativos').text
+            empresa_neutros = empresa_mensajes.find('neutros').text
+
+            p.drawString(50, y, f"Total de mensajes: {empresa_total}")
+            y -= 20
+            p.drawString(50, y, f"Mensajes positivos: {empresa_positivos}")
+            y -= 20
+            p.drawString(50, y, f"Mensajes negativos: {empresa_negativos}")
+            y -= 20
+            p.drawString(50, y, f"Mensajes neutros: {empresa_neutros}")
+            y -= 20
+
+            servicios = empresa.find('servicios')
+            for servicio in servicios.findall('servicio'):
+                nombre_servicio = servicio.get('nombre')
+                p.drawString(50, y, f"Servicio: {nombre_servicio}")
+                y -= 20
+
+                servicio_mensajes = servicio.find('mensajes')
+                servicio_total = servicio_mensajes.find('total').text
+                servicio_positivos = servicio_mensajes.find('positivos').text
+                servicio_negativos = servicio_mensajes.find('negativos').text
+                servicio_neutros = servicio_mensajes.find('neutros').text
+
+                p.drawString(70, y, f"Total de mensajes: {servicio_total}")
+                y -= 20
+                p.drawString(70, y, f"Mensajes positivos: {servicio_positivos}")
+                y -= 20
+                p.drawString(70, y, f"Mensajes negativos: {servicio_negativos}")
+                y -= 20
+                p.drawString(70, y, f"Mensajes neutros: {servicio_neutros}")
+                y -= 40
+
+    p.showPage()
+    p.save()
+
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name='reporte.pdf', mimetype='application/pdf')
     
     
 if __name__ == '__main__':

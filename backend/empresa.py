@@ -6,7 +6,7 @@ class Empresa:
         self.servicios = Servicio()
         self.mensajes = []
 
-    def agregar_servicio(self, servicio):
+    def agregarServicio(self, servicio):
         self.servicios.append(servicio)
 
     def __str__(self):
