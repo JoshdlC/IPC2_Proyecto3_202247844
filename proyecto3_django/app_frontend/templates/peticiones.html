@@ -6,8 +6,15 @@
 </div>    
 <body>
     <div>
-        <div>
+        <div class="consultarDatos">
             <h2>Consultar datos</h2>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="consultar_datos">Mostrar datos</button>
+            </form>
+            {% if xml_data_salida %}
+                <pre>{{ xml_data_salida }}</pre>
+            {% endif %}
         </div>
         <br>
         <div>

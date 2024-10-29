@@ -24,8 +24,13 @@ def ayuda(request):
     return render(request, "ayuda.html", context)
 
 def peticiones(request):
+    xml_data_salida = ""
+    if request.method == "POST" and "consultar_datos" in request.POST:
+        xml_data_salida = request.session.get('xml_dataSalida', '')
+
     context = {
         'timestamp': now().timestamp(),
+        'xml_data_salida': xml_data_salida,
     }
     return render(request, "peticiones.html", context)
 
@@ -93,3 +98,7 @@ def home(request):
         'sentimientos_negativos': request.session.get('sentimientos_negativos', []),
     }
     return render(request, "home.html", context)
+
+def obtenerXmlSalida(request):
+    xml_dataSalida = request.session.get('xml_dataSalida')
+    return JsonResponse({'xml_dataSalida': xml_dataSalida})
