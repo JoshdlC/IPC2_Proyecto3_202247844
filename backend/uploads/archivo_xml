@@ -1,74 +1,83 @@
 <?xml version="1.0"?>
 <solicitud_clasificacion>
- <diccionario> 
-    <sentimientos_positivos> 
-        <palabra> buen </palabra>
-        <palabra> bien </palabra>
-        <palabra> agradado </palabra>
-        <palabra> deliciosas </palabra>
-        <palabra> baratas </palabra>
-        <palabra> ricas </palabra>
-        <palabra> barato </palabra>
-        <palabra> rápido </palabra>
-        <palabra> excelente </palabra>
+ <diccionario>
+    <sentimientos_positivos>
+        <palabra>excelente</palabra>
+        <palabra>bueno</palabra>
+        <palabra>maravilloso</palabra>
     </sentimientos_positivos>
-    <sentimientos_negativos> 
-        <palabra> terrible </palabra>
-        <palabra> mala </palabra>
-        <palabra> mal </palabra>
-        <palabra> caro </palabra>
-        <palabra> no </palabra>
+    <sentimientos_negativos>
+        <palabra>lamentable</palabra>
+        <palabra>frustrante</palabra>
+        <palabra>deficiente</palabra>
     </sentimientos_negativos>
-    <empresas_analizar> 
-        <empresa> 
-            <nombre> McDonals </nombre>
-            <servicio nombre="servicio"> 
-                <alias> sirvieron </alias>
-                <alias> servir </alias>
-                <alias> sirve </alias>
-            </servicio>            
+    <empresas_analizar>
+        <empresa>
+            <nombre> Nike </nombre>
+            <servicios>
+                <servicio nombre="Cobrar"> 
+                    <alias> cobrando </alias>
+                    <alias> cobran </alias>
+                    <alias> cobrado </alias>
+                </servicio>
+            </servicios>
         </empresa>
-        <empresa> 
-            <nombre> Burguer  King </nombre>
-            <servicio nombre="Cobrar"> 
-                <alias> cobran </alias>
-            </servicio>
+        <empresa>
+            <nombre> Adidas </nombre>
+            <servicios>
+                <servicio nombre="vENtA"> 
+                    <alias> vendido </alias>
+                </servicio>
+            </servicios>
         </empresa>
-        <empresa> 
-            <nombre> Carls Jr </nombre>
-            <servicio nombre="AtEnCiOn"> 
-                <alias> atender </alias>
-                <alias> atendieron </alias>
-                <alias> atienden </alias>
-            </servicio>
+        <empresa>
+            <nombre> Walmart </nombre>
+            <servicios>
+                <servicio nombre="aTENciÓn"> 
+                    <alias> atendido </alias>
+                    <alias> atiende </alias>
+                    <alias> atendió </alias>
+                </servicio>
+            </servicios>
         </empresa>
     </empresas_analizar>
  </diccionario>
  <lista_mensajes>
-    <mensaje> 
-        Lugar y fecha: Guatemala, 24/04/2022 10:57 Usuario: 
-        Kitty_cat88 Red social: Instagram
-        Buen servicio por parte de McDonals, por primera vez me sentí agradado en el lugar a donde fuí, me
-        sirvieron de buena manera.
+     <mensaje>
+        Lugar y fecha: Guatemala, 29/10/2024 16:33 Usuario: @P3rs0n4
+        Red social: Instagram El día de hoy, fui a una tienda de Nike, muy lamentable porque cobran mal ya que los empleados no se encuentan capacidatos. De verdad espero arreglen esto, me siento #enojado.
     </mensaje>
-    <mensaje> 
-        Lugar y fecha: Estados Unidos, 
-        26/04/2022 13:15 
-        Usuario: Soyyo#2 
+    <mensaje>
+        Lugar y fecha: Guatemala, 29/10/2024
+        Usuario: Princess01
+        Red social: X Maravilloso el servicio de Walmart, su la persona que me atendió de verdad sabía lo que hacía.
+    </mensaje>
+    <mensaje>
+        Lugar y fecha: Filadelfia, 01/11/2024 
+        Usuario: Xx$$Money$$xX
         Red social: Facebook 
-        Las hambuguesas de Carls Jr son deliciosas,
-        pero si buscan algo más barato, les recomiendo Burguer King, allí las hamburguesas son baratas y ricas.
+        Quiero compartirles que en ADIDAS me han vendido unos pants, honestamente, aunque ha sido bueno el precio con el que los conseguí ahí, siento que ha sido algo deficiente su tiempo de servicio.
     </mensaje>
-    <mensaje> 
-        Lugar y fecha: Mexico, 01/04/2022 15:43 Usuario: @chilero_123 
-        Red social: Twitter
-        Terrible servicio en Burguer King zona 6, mi comida ya estaba fría y me lleve una mala experiencia
-        además los cajeros cobran muy lento.
+    <mensaje>
+        Lugar y fecha: Detroit, 02/11/2024 
+        Usuario: user@correo.com
+        Red social: Facebook 
+        A mi me ha encantado como me han atendido hoy en Walmart, ¡Espero que su servicio siga así!
     </mensaje>
-    <mensaje> 
-        Lugar y fecha: Guatemala, 01/04/2022 15:43 Usuario: carne_asada_25 
-        Red social: Facebook Me pidieron mi opinión sobre mi restaurante favorito: Pienso que McDonals sirve rápido y la comida esta bien.
-        Burguer King no me gusta para nada, creo que la comida es de mala calidad. Estas de acuerdo?
+    <mensaje>
+        Lugar y fecha: Detroit, 02/11/2024 
+        Usuario: user@correo.com
+        Red social: Facebook 
+        Solo quiero decir que ha sido excelente como Adidas me ha vendido las cosas, igualmente, muy maravilloso como en Nike me han cobrado rápidamente.
     </mensaje>
  </lista_mensajes>
 </solicitud_clasificacion>
+
+
+<!-- PRUEBA DE MENSAJE:
+
+<?xml version="1.0"?>
+<mensaje>
+    Lugar y fecha: Guatemala, 01/11/2024 15:20 Usuario: map0002@usac.edu Red social: X deficiente y FRUSTRANTE cómo han cobrado en Nike, de verdad que JAMÁS compraré ahí de nuevo. Lo único bueno, es que al menos conseguí lo que necesitaba para hoy... A la siguiente compraré con antelación y buscaré un mejor lugar.
+</mensaje>
+-->
