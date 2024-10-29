@@ -4,7 +4,7 @@ class Empresa:
     def __init__(self, nombre):
         self.nombre = nombre
         self.servicios = Servicio()
-        self.mensajes = Mensaje()
+        self.mensajes = []
 
     def agregar_servicio(self, servicio):
         self.servicios.append(servicio)
@@ -16,5 +16,5 @@ class Servicio:
     def __init__(self, nombre, alias):
         self.nombre = nombre
         self.alias = alias
-        self.mensajes = Mensaje()
+        self.mensajes = []
 

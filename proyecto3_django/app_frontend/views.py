@@ -56,21 +56,35 @@ def cargarXml(request):
 
 def home(request):
     
-    if request.method == 'POST' and 'enviar' in request.POST:
-        fileIndex = request.session.get('fileIndex')
-        response = requests.post('http://127.0.0.1:5000/procesar_xml', json={'fileIndex': fileIndex})
-        if response.status_code == 200:
-            data = response.json()
-            request.session['xml_dataSalida'] = data.get('salida_xml_content')
-            request.session['sentimientos_positivos'] = data.get('sentimientos_positivos', [])
-            request.session['sentimientos_negativos'] = data.get('sentimientos_negativos', [])
+    if request.method == 'POST':
+        if 'enviar' in request.POST:
+            fileIndex = request.session.get('fileIndex')
+            response = requests.post('http://127.0.0.1:5000/procesar_xml', json={'fileIndex': fileIndex})
+            if response.status_code == 200:
+                data = response.json()
+                request.session['xml_dataSalida'] = data.get('salida_xml_content')
+                request.session['sentimientos_positivos'] = data.get('sentimientos_positivos', [])
+                request.session['sentimientos_negativos'] = data.get('sentimientos_negativos', [])
 
-            print("Archivo XML procesado correctamente")
-            return redirect('home')
-        else:
-            print("Error al procesar el archivo XML en el backend Flask en procesar_xml")
-            print(response.text)
-    
+                print("Archivo XML procesado correctamente")
+                return redirect('home')
+            else:
+                print("Error al procesar el archivo XML en el backend Flask en procesar_xml")
+                print(response.text)
+        elif 'reset' in request.POST:
+            response = requests.post('http://127.0.0.1:5000/reset')
+            if response.status_code == 200:
+                print("Reset realizado correctamente")
+                request.session['xml_dataEntrada'] = None
+                request.session['xml_dataSalida'] = None
+                request.session['sentimientos_positivos'] = []
+                request.session['sentimientos_negativos'] = []
+                return redirect('home')
+            else:
+                print("Error al realizar el reset en el backend Flask")
+                print(response.text)
+            
+            
     context = {
         'timestamp': now().timestamp(),
         'xml_dataEntrada': request.session.get('xml_dataEntrada'),

@@ -116,7 +116,7 @@ def procesarArchivo(filePath):
             sentimientoX.append(palabra)   
             
         #! Busca empresas y servicios
-        for empresas in root.findall("empresa"):
+        for empresas in diccionario.findall("empresa"):
             nombreEmpresa = empresas.find("nombre").text.strip()
             
             print("Nombre de la empresa: ", nombreEmpresa)
@@ -137,7 +137,7 @@ def procesarArchivo(filePath):
                 empresasGlobal.append(empresa)
                 
             #* Recorre servicios
-            for servicios in empresas.find("servicios"):
+            for servicios in empresas.findall("servicios"):
                 for servicio in servicios.findall("servicio"):
                     nombreServicio = servicio.get("nombre").text.strip()
                     aliasServicio = servicio.find("alias").text.strip()
@@ -171,7 +171,7 @@ def procesarArchivo(filePath):
         else:
             print("Fecha no encontrada")
         
-        regexUser = re.compile(r'Usuario:\s*([a-zA-Z0-9]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})')       
+        regexUser = re.compile(r'Usuario:\s*(@?[a-zA-Z0-9_.#]+(?:@[a-zA-Z0-9_.-]+)?)')       
         usuario = regexUser.search(mensaje)
         if usuario:
             print("Usuario: ", usuario.group())
@@ -404,6 +404,34 @@ def procesar_xml():
         print(f"Error al procesar el archivo XML: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/reset', methods=['POST'])
+def reset():
+    #* Se llama a las listas
+    global empresasGlobal, serviciosGlobal, diccionario, sentimientosPositivo, sentimientosNegativo, sentimientoX
+    global mensajesGlobal, mensajesPositivos, mensajesNegativos, mensajesNeutros, totalPositivos, totalNeg, TotalX
+    global filePaths
+    
+    #* Se limpian las listas
+    empresasGlobal = []
+    serviciosGlobal = []
+    diccionario = []
+    sentimientosPositivo = []
+    sentimientosNegativo = []
+    sentimientoX = []
+    mensajesGlobal = []
+    mensajesPositivos = []
+    mensajesNegativos = []
+    mensajesNeutros = []
+    totalPositivos = 0
+    totalNeg = 0
+    TotalX = 0
+    filePaths = []
+    
+    session.clear()
+
+    return jsonify({'message': 'Se ha reiniciado la información'})
+    
+    
 if __name__ == '__main__':
     app.run(debug=True)
     
